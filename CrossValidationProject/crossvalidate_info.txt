@@ -1,0 +1,21 @@
+﻿NetID : iv447
+University ID: N17385760
+
+
+Cross Validation :
+
+
+Cross-validation is a technique for evaluating ML models by training several ML models on subsets of the available input data and evaluating them on the complementary subset of the data. ... In k-fold cross-validation, you split the input data into k subsets of data (also known as folds).
+
+
+Folder Description :
+Dataset used in Project : titanic-train.csv file which is at the following location : /home/data/titanic-train.csv
+Jar file : /home/Finals/P3/scalasbtbuild_2.10-0.1-SNAPSHOT.jar
+Source Code : /home/Finals/P3/CrossValidation/src
+
+
+
+
+Steps to run the jar file:
+Goto Spark bin folder and execute following command :
+./spark-submit --master local[*] --class CrossValidateFinal $HOME/Finals/P3/scalasbtbuild_2.10-0.1-SNAPSHOT.jar
