@@ -1,0 +1,98 @@
+NetID : iv447
+University ID: N17385760
+
+Naive Bayes Algorithm
+
+Naive Bayes is a simple but very powerful algorithm for predictive modeling.
+
+In Machine Learning we are interested in selecting the best hypothesis (h) given data (d). One of the easiest way of selecting the most probable hypothesis given the data that we have that we can use as our prior knowledge about the problem. Bayes’ Theorem provides a way that we can calculate the probability of a hypothesis given our prior knowledge.
+
+Bayes’ Theorem is stated as:
+P(h|d) = P(d|h) * P(h) / P(d)
+Where
+P(h|d) is the probability of hypothesis h given the data d. This is called the posterior probability.$
+P(d|h) is the probability of data d given that the hypothesis h was true.
+P(h) is the probability of hypothesis h being true (regardless of the data). This is called the prior probability of h.
+P(d) is the probability of the data (regardless of the hypothesis).
+
+Folder Description :
+Dataset used in Project : binary.csv file which is at the following location : /home/data/binary.csv
+Jar file : /home/P2/NaiveBayes/scalasbtbuild_2.10-0.1-SNAPSHOT.jar
+Source Code : /home/P2/NaiveBayes/src
+
+Goal :
+In our problem we have to run Naive Bayes algorithm on the given dataset using 70% as training data and 30% as test data.
+
+Steps to run the jar file:
+Goto Spark bin folder and execute following command :
+./spark-submit --master local[*] --class NaiveBayesAlgorithm $HOME/P2/NaiveBayes/scalasbtbuild_2.10-0.1-SNAPSHOT.jar
+
+
+Code for Naive Bayes in scala :
+
+Build.sbt file for building scala project :
+
+name := "ScalaSbtBuild"
+libraryDependencies += "org.apache.spark" %% "spark-mllib" % "2.1.0"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.0"
+
+
+Scala Code for the Naive Bayes:
+
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.mllib._
+import org.apache.spark.mllib.classification.{NaiveBayes, NaiveBayesModel}
+import org.apache.spark.mllib.util.MLUtils
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
+
+import org.apache.spark.rdd.RDD
+object NaiveBayesAlgorithm {
+ def main(args:Array[String]) : Unit = {
+   val conf = new SparkConf().setAppName("NaiveBayes").setMaster("local[*]")
+   val sc = new SparkContext(conf)
+   val datapre = sc.textFile("/home/data/binary.csv")
+   val header  = datapre.first()
+   val data = datapre.filter(row => row != header)
+   val parseddatapre = data.map { line =>
+   val parts = line.split(',')
+ LabeledPoint(parts(0).toDouble , Vectors.dense(parts(1).toInt, parts(2).toDouble,   parts(3).toInt))
+   }
+   val splits = parseddatapre.randomSplit(Array(0.7, 0.3), seed = 17L)
+   val training = splits(0)
+   val test = splits(1)
+   val model = NaiveBayes.train(training)
+   val predictionAndLabel = test.map(p => (model.predict(p.features), p.label))
+val accuracy = 1.0 * predictionAndLabel.filter(x => x._1 == x._2).count() / test.count()
+   println("the accuracy is " + accuracy)
+   val metrics = new BinaryClassificationMetrics(predictionAndLabel)
+   // Precision by threshold
+   val precision = metrics.precisionByThreshold
+   precision.foreach { case (t, p) =>
+     println(s"Threshold: $t, Precision: $p")
+   }
+   // Recall by threshold
+   val recall = metrics.recallByThreshold
+   recall.foreach { case (t, r) =>
+     println(s"Threshold: $t, Recall: $r")
+   }
+   // Precision-Recall Curve
+   val PRC = metrics.pr
+   val roc1 = metrics.roc
+   println("the ROC is " + roc1.collect())
+   val auc1 = metrics.areaUnderROC
+
+   println("the AUC is " + auc1)
+   val metrics2 = new MulticlassMetrics(predictionAndLabel)
+   val confusionmatrix = metrics2.confusionMatrix
+println("**************************************************OUTPUT*******************************************")
+   println("the accuracy is " + accuracy)
+   println("the AUC is " + auc1)
+   println("the confusionmatrix is  " + confusionmatrix)
+   println("the ROC is " + roc1.collect())
+println("**************************************************OUTPUT*******************************************")
+ }
+}
