@@ -1,0 +1,37 @@
+netId : iv447
+dataset1
+
+1. Mongo :
+loaded the data with using mongoimport in mydb :
+mongoimport -d mydb -c dataset1 --type csv --file /home/data/MT/dataset3/d21.csv --headerline
+
+
+2. R :
+The r script for dataset1 can be executed using following command :
+ Rscript "/home/2018/spring/nyu/6513/iv447/T1/d1-r.r"
+
+After the script finishes it's execution two plots are created one for raw gdp ("gdp_raw_plot.jpg")
+and one for scaled gdp("gdp_scaled_plot.jpg"). Both the plots are saved as jpg files. The files are also present in T1 directory.
+
+R code :
+
+
+GDP_RAW <- read.csv(file="/home/data/MT/dataset1/gdp-1950-1983.csv",sep=",",head=TRUE)
+GDP_RAW$X <- NULL
+DF.TS <- ts(GDP_RAW[-1], start = 1950, frequency = 1)
+jpeg('gdp_raw_plot.jpg')
+plot(DF.TS, plot.type="single", pch = 1:ncol(DF.TS), col = 1:ncol(DF.TS))
+legend("topleft", colnames(DF.TS), col=1:ncol(GDP_RAW), lty=1)
+dev.off()
+
+normalize <- function(x) {
+    return ((x - mean(x)) / sd(x))
+  }
+
+GDP_SCALED <- as.data.frame(lapply(GDP_RAW[2:ncol(GDP_RAW)], normalize))
+GDP_SCALED$X <- NULL
+DF.TS <- ts(GDP_SCALED[-1], start = 1950, frequency = 1)
+jpeg('gdp_scaled_plot.jpg')
+plot(DF.TS, plot.type="single", pch = 1:ncol(DF.TS), col = 1:ncol(DF.TS))
+legend("topleft", colnames(DF.TS), col=1:ncol(GDP_SCALED), lty=1)
+dev.off()

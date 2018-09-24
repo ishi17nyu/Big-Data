@@ -1,0 +1,24 @@
+Uni Id : iv447
+dataset2
+
+Steps :
+
+1. First i created three table in iv447 database  using the following command :
+
+create table Eqix(HDate date primary key, Open numeric(10,5), High numeric(10,5), Low numeric(10,5), Close numeric(10,5), Volume numeric(10,5),OpenInt numeric(10,5),percentageChange numeric(10,5));
+create table Flxs(HDate date primary key, Open numeric(10,5), High numeric(10,5), Low numeric(10,5), Close numeric(10,5), Volume numeric(10,5),OpenInt numeric(10,5),percentageChange numeric(10,5));
+create table Ifon(HDate date primary key, Open numeric(10,5), High numeric(10,5), Low numeric(10,5), Close numeric(10,5), Volume numeric(10,5),OpenInt numeric(10,5),percentageChange numeric(10,5));
+
+2. Load the data from txt files to above tables using following command :
+load data local infile "/home/data/MT/dataset2/ndq1/eqix.us.txt" into table Eqix fields terminated by ',' lines terminated by '\n' ignore 1 rows;
+load data local infile "/home/data/MT/dataset2/ndq1/flxs.us.txt" into table Flxs fields terminated by ',' lines terminated by '\n' ignore 1 rows;
+load data local infile "/home/data/MT/dataset2/ndq1/ifon.us.txt" into table Ifon fields terminated by ',' lines terminated by '\n' ignore 1 rows;
+
+3. Update the percentageChange column with following value abs(Open-Close)/Open * 100:
+update Eqix set percentageChange = abs((Open-Close)/Open * 100);
+update Flxs set percentageChange = abs((Open-Close)/Open * 100);
+update Iron set percentageChange = abs((Open-Close)/Open * 100);
+
+4. to execute the query (sql script) :
+mysql -u iv447 -p iv447 < "/home/2018/spring/nyu/6513/iv447/T1/d2-sql.sql"
+password : iv447123
